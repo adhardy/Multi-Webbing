@@ -1,6 +1,6 @@
 import queue
 import threading
-import requests
+import selenium
 
 class MultiWebbing():
     """call this class first to initiate MultiWebbing and the individual threads"""
