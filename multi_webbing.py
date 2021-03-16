@@ -8,15 +8,15 @@ class MultiWebbing():
         """Creates a job queue, lock object, session and creates the number of requested threads"""
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
-        self.session = requests.session()
+        self.session = requests.session() #TODO change to selenium equivalent, or might not need at all - used for logging into the website I'm scraping
         self.threads = []
         for i in range(num_threads):
-            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session))
+            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session)) #TODO initiate a browser instance here, you'll need a seperate instance for each thread
 
     def start(self):
         """Call after initiating a Threading object to start the threads."""
         for thread in self.threads:
-            thread.start()
+            thread.start() #TODO might be more appropriate to initiate selenium here
 
     def finish(self):
         """When you are ready to finish your threads (e.g. when your work queue is empty and you have visited all pages, call this method to stop and join the threads."""
@@ -32,7 +32,7 @@ class MultiWebbing():
             self._stop_event = threading.Event()
             self.job_queue = job_queue
             self.lock = lock
-            self.session = session
+            self.session = session #TODO change/remove
 
         def run(self):
             #execute on thread.start()
@@ -53,7 +53,6 @@ class MultiWebbing():
                     #print("Thread " + self.name + ": Getting profile: " + profile.url)
                     #execute main thread function
                     job.function(job)
-                    #update the data structure with the returned data
 
             print(f" ** Completed thread - {self.number}")
 
@@ -83,7 +82,7 @@ class Job:
         if self.lock == None:
             self.lock = self.thread.lock
 
-    def get_url(self):
+    def get_url(self): #TODO: change to work with selenium
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
         try:
             self.request = self.thread.session.get(self.url)               
@@ -93,25 +92,3 @@ class Job:
 
         return True
 
-
-def job_function_template(job):
-    """not used, template code for a job_function"""
-
-    #import multi_webbing as mw
-    #num_threads = 4
-    #my_threads = mw.MultiWebbing(num_threads) #intialize threading
-    #my_threads.start #start threads, they are now checking the queue, waiting for work
-    #my_threads.job_queue.put(mw.Job(job_id, my_job_function, url, [job_data, job_type])) #put a job in the queue
-
-    job_data = job.custom_data[0] #in this example, a dictionary which contains the data being scraped
-    job_type = job.custom_data[1] #in this example, a string
-
-    get_url_success = job.get_url() #get the URL
-    if get_url_success: #check the request connected
-        if job.request.status_code == 200: #check that the URL was recieved OK
-            job.lock.acquire() #update/append are thread safe but other operations elsewhere (e.g. JSON.dumps) might not be
-            if job.type == "jobtype1": #do something
-                job.custom_data.update({"key1":"val3", "key2":"val4"})
-            if job.type == "jobtype2": #do something different
-                job.custom_data.update({"key1":"val3", "key2":"val4"})
-            job.lock.release()
