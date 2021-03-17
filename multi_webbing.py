@@ -66,7 +66,7 @@ class MultiWebbing():
 class Job:
     #holds all the information needed for the worker threads to make a request and execute the job_function
     def __init__(self, job_id, function, url, custom_data, session = None, lock = None):
-        self.id = job_id #will be made the key in main_data, should be unique
+        self.id = job_id
         self.url = url
         self.custom_data = custom_data #your data structure, accessible inside your job function (list, dictionary, list of list, list of dictionaries...)
         self.request = None
