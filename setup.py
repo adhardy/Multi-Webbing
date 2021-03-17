@@ -6,10 +6,11 @@ setup(
     description='A multi-threaded libary for web scraping in python, built upon the python threading and requests modules.',
     url='https://github.com/adhardy/Multi-Webbing',
     author='Adam Hardy',
-    author_email='adh167@gmail.com',
-    license='BSD 2-clause',
+    author_email='adamdhardy@icloud.com',
+    license='MIT',
     packages=['multi_webbing'],
     install_requires=['requests'],
+    keywords = ['web-scraping', 'multithreading', 'requests'], 
     classifiers=[
     ],
 )
