@@ -16,7 +16,7 @@ A multi-threaded libary for web scraping in python, built upon the python thread
 
         my_threads.start
 
-4. To put a job in the queue, call the job_queue.put() method of the multi-webbing threading object.
+4. To put a job in the queue, call the job_queue.put() method of the multi-webbing object.
 
         my_threads.job_queue.put(mw.Job(job_id, job_function, url, [job_data, job_type]))
 
