@@ -3,24 +3,28 @@ A multi-threaded libary for web scraping in python, built upon the python thread
 
 ## Set Up
 
-1. Import the Module
+1. Install the module from pip
 
-        import multi_webbing as mw
+        pip install multi_webbing
 
-2. Set the Number of threads and create a multi-webbing object.
+2. Import the Module into your python file
+
+        from multi_webbing import multi_webbing as mw
+
+3. Set the Number of threads and create a multi-webbing object.
 
         num_threads = 4
         my_threads = mw.MultiWebbing(num_threads) #intialize threading
         
-3. Start the threads. The threads will now continuously check the work queue for work.
+4. Start the threads. The threads will now continuously check the work queue for work.
 
         my_threads.start
 
-4. To put a job in the queue, call the job_queue.put() method of the multi-webbing object.
+5. To put a job in the queue, call the job_queue.put() method of the multi-webbing object.
 
         my_threads.job_queue.put(mw.Job(job_id, job_function, url, [job_data, job_type]))
 
-5. When you are ready, stop the threads
+6. When you are ready, stop the threads
 
         my_threads.finish()
 
