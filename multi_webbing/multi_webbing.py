@@ -7,14 +7,20 @@ from selenium.webdriver.chrome.options import Options
 
 class MultiWebbing():
     """call this class first to initiate MultiWebbing and the individual threads"""
-    def __init__(self, num_threads):
+    def __init__(self, num_threads, web_module="requests"):
         """Creates a job queue, lock object, session and creates the number of requested threads"""
         sys.path
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
+        self.web_module = web_module
+        if web_module = "requests":
+            self.session = requests.session 
+        else:
+            self.session = None
+
         for i in range(num_threads):
-            self.threads.append(self.Thread(i, self.job_queue, self.lock))
+            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session, self.web_module))
 
     def start(self):
         """Call after initiating a Threading object to start the threads."""
@@ -29,7 +35,7 @@ class MultiWebbing():
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
-        def __init__(self, number, job_queue, lock):
+        def __init__(self, number, job_queue, lock, session):
             threading.Thread.__init__(self)
             self.number = number
             self._stop_event = threading.Event()
