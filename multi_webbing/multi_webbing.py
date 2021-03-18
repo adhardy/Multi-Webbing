@@ -50,7 +50,7 @@ class MultiWebbing():
             if self.web_module == "selenium":
                 self.options = Options() 
                 self.options.add_argument("--headless")
-                self.driver = multiWebbing.driver(self.options=options)
+                self.driver = self.driver(options=self.options)
 
         def run(self):
             #execute on thread.start()
