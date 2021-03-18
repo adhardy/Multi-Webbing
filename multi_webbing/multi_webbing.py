@@ -47,7 +47,7 @@ class MultiWebbing():
             self.lock = multiWebbing.lock
             self.session = multiWebbing.session
             self.options = None
-            if self.web_module = "selenium-chrome"
+            if self.web_module = "selenium"
                 self.options = Options() 
                 self.options.add_argument("--headless")
                 self.driver = multiWebbing.driver(self.options=options)
@@ -89,27 +89,39 @@ class Job:
         self.request = None
         self.status_code = None
         self.function = function
-        self.driver = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
+        self.session = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
         self.lock = None
 
     def set_thread(self, thread):
         """allows access to thread attributes(e.g. session, lock) that may be needed for the job function"""
         self.thread = thread
         # if not set in init, use thread session and lock 
-        if self.driver == None:    
-            self.driver = self.thread.driver
+        if self.session == None:    
+            self.session = self.thread.session
         if self.lock == None:
             self.lock = self.thread.lock
 
-    def get_url(self):
+    def get_url(self)
+        if self.web_module="requests":
+            get_url_requests(self)
+        elif: self.web_module="selenium":
+            get_url_selenium(self)
+
+    def get_url_requests(self):
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
         try:
-            requests.get(self.url)             
+            self.request = self.session.get(self.url)               
         except requests.exceptions.ConnectionError:
             self.request = None
             return False
-        else:
-            self.request = self.thread.driver.get(self.url) #cleanup
-            self.status_code = requests.get(self.url).status_code
+
+        return True
+
+    def get_url_selenium(self):
+        """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
+        try:
+            self.thread.driver.get(self.url)            
+        except: #TODO: find the specific connection error/timeout exception name in selenium
+            return False
 
         return True
