@@ -3,6 +3,7 @@ import threading
 import requests
 import sys
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class MultiWebbing():
     """call this class first to initiate MultiWebbing and the individual threads"""
@@ -11,10 +12,9 @@ class MultiWebbing():
         sys.path
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
-        self.session = webdriver.Chrome()
         self.threads = []
         for i in range(num_threads):
-            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session))
+            self.threads.append(self.Thread(i, self.job_queue, self.lock))
 
     def start(self):
         """Call after initiating a Threading object to start the threads."""
@@ -29,13 +29,15 @@ class MultiWebbing():
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
-        def __init__(self, number, job_queue, lock, session):
+        def __init__(self, number, job_queue, lock):
             threading.Thread.__init__(self)
             self.number = number
             self._stop_event = threading.Event()
             self.job_queue = job_queue
             self.lock = lock
-            self.session = session
+            options = Options() #TODO add harry's bots here
+            options.add_argument("--headless")
+            self.driver = webdriver.Chrome(options=options)
 
         def run(self):
             #execute on thread.start()
@@ -74,15 +76,15 @@ class Job:
         self.request = None
         self.status_code = None
         self.function = function
-        self.session = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
+        self.driver = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
         self.lock = None
 
     def set_thread(self, thread):
         """allows access to thread attributes(e.g. session, lock) that may be needed for the job function"""
         self.thread = thread
         # if not set in init, use thread session and lock 
-        if self.session == None:    
-            self.session = self.thread.session
+        if self.driver == None:    
+            self.driver = self.thread.driver
         if self.lock == None:
             self.lock = self.thread.lock
 
@@ -94,7 +96,7 @@ class Job:
             self.request = None
             return False
         else:
-            self.request = self.thread.session.get(self.url)
+            self.request = self.thread.driver.get(self.url)
             self.status_code = requests.get(self.url).status_code
 
         return True
