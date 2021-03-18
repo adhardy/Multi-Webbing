@@ -46,10 +46,11 @@ class MultiWebbing():
             self.job_queue = multiWebbing.job_queue
             self.lock = multiWebbing.lock
             self.session = multiWebbing.session
-            if web_module = "selenium-chrome"
-                options = Options() 
-                options.add_argument("--headless")
-                self.driver = multiWebbing.driver(options=options)
+            self.options = None
+            if self.web_module = "selenium-chrome"
+                self.options = Options() 
+                self.options.add_argument("--headless")
+                self.driver = multiWebbing.driver(self.options=options)
 
         def run(self):
             #execute on thread.start()
