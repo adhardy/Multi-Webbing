@@ -1,5 +1,5 @@
 # Multi-Webbing
-A multi-threaded libary for web scraping in python, built upon the python threading and requests modules.
+A multi-threaded libary for web scraping in python, built upon the python threading modules. Supports using requests and selenium for making web requests.
 
 ## Set Up
 
@@ -11,7 +11,7 @@ A multi-threaded libary for web scraping in python, built upon the python thread
 
         from multi_webbing import multi_webbing as mw
 
-3. Set the Number of threads and create a multi-webbing object.
+3. Set the Number of threads and create a multi-webbing object. By default this will use the requests module, but this can be changed to selenium by passing the webmodule=selenium" option to MultWebbing.
 
         num_threads = 4
         my_threads = mw.MultiWebbing(num_threads) #intialize threading
@@ -48,7 +48,7 @@ The URL of the webpage to be worked on.
 
 2. job_function
 
-The function the thread should call when it picks the job out of the queue. See (Job Function)[#Job-Function].
+The function the thread should call when it picks the job out of the queue. See [Job Function](#Job-Function).
 
 3. custom_data
 
@@ -83,7 +83,9 @@ Multiple variables and data structures can be accessed in the job by placing the
 
 ## Job Function
 
-The job function will be called from a thread when it gets a job from the queue. An example is below:
+The job function will be called from a thread when it gets a job from the queue.
+
+An example using using the requests module:
 
     def job_function(job):
 
@@ -99,3 +101,11 @@ The job function will be called from a thread when it gets a job from the queue.
                 if job.type == "jobtype2": #do something different
                     job.custom_data.update({"key1":"val3", "key2":"val4"})
                 job.lock.release()
+
+Using requests, you can access the request object by calling job.request. For example, to obtain the text attribute from the visited page:
+
+        text = job.request.text 
+
+Using selenium you can access the webdriver by calling job.driver, for example:
+
+        element = driver.find_element_by_xpath('xpath_string')

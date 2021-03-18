@@ -1,17 +1,29 @@
 import queue
 import threading
 import requests
+import sys
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class MultiWebbing():
     """call this class first to initiate MultiWebbing and the individual threads"""
-    def __init__(self, num_threads):
+    def __init__(self, num_threads, web_module="requests", webdriver=webdriver.Chrome):
+        #TODO add harry's bots as web_module option
         """Creates a job queue, lock object, session and creates the number of requested threads"""
+        sys.path
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
-        self.session = requests.session()
         self.threads = []
-        for i in range(num_threads):
-            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session))
+        self.web_module = web_module
+        self.driver = webdriver
+        self.num_threads = num_threads
+        if self.web_module == "requests":
+            self.session = requests.session()
+        else:
+            self.session = None
+
+        for i in range(self.num_threads):
+            self.threads.append(self.Thread(i, self))
 
     def start(self):
         """Call after initiating a Threading object to start the threads."""
@@ -26,13 +38,19 @@ class MultiWebbing():
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
-        def __init__(self, number, job_queue, lock, session):
+        def __init__(self, number, multiwebbing):
             threading.Thread.__init__(self)
+            self.web_module = multiwebbing.web_module
             self.number = number
             self._stop_event = threading.Event()
-            self.job_queue = job_queue
-            self.lock = lock
-            self.session = session
+            self.job_queue = multiwebbing.job_queue
+            self.lock = multiwebbing.lock
+            self.session = multiwebbing.session
+            self.options = None
+            if self.web_module == "selenium":
+                self.options = Options() 
+                self.options.add_argument("--headless")
+                self.driver = multiwebbing.driver(options=self.options)
 
         def run(self):
             #execute on thread.start()
@@ -69,6 +87,7 @@ class Job:
         self.url = url
         self.custom_data = custom_data #your data structure, accessible inside your job function (list, dictionary, list of list, list of dictionaries...)
         self.request = None
+        self.status_code = None
         self.function = function
         self.session = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
         self.lock = None
@@ -77,17 +96,37 @@ class Job:
         """allows access to thread attributes(e.g. session, lock) that may be needed for the job function"""
         self.thread = thread
         # if not set in init, use thread session and lock 
-        if self.session == None:    
-            self.session = self.thread.session
+        if self.thread.web_module == "requests":
+            if self.session == None:    
+                self.session = self.thread.session
+        elif self.thread.web_module == "selenium":
+            self.driver = thread.driver
         if self.lock == None:
             self.lock = self.thread.lock
 
-    def get_url(self):
+
+    def get_url_requests(self):
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
         try:
-            self.request = self.thread.session.get(self.url)               
+            self.request = self.session.get(self.url)               
         except requests.exceptions.ConnectionError:
             self.request = None
             return False
 
         return True
+
+    def get_url_selenium(self):
+        """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
+        try:
+            self.thread.driver.get(self.url)            
+        except: #TODO: find the specific connection error/timeout exception name in selenium
+            return False
+
+        return True
+
+    def get_url(self):
+        if self.thread.web_module == "requests":
+            self.get_url_requests()
+        elif self.thread.web_module == "selenium":
+            self.get_url_selenium()
+
