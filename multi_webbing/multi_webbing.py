@@ -101,12 +101,6 @@ class Job:
         if self.lock == None:
             self.lock = self.thread.lock
 
-    def get_url(self):
-        if self.thread.web_module == "requests":
-            get_url_requests(self)
-        elif self.thread.web_module == "selenium":
-            get_url_selenium(self)
-
     def get_url_requests(self):
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
         try:
@@ -125,3 +119,10 @@ class Job:
             return False
 
         return True
+
+    def get_url(self):
+        if self.thread.web_module == "requests":
+            self.get_url_requests()
+        elif self.thread.web_module == "selenium":
+            self.get_url_selenium()
+
