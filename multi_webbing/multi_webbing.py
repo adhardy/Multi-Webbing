@@ -102,9 +102,9 @@ class Job:
             self.lock = self.thread.lock
 
     def get_url(self):
-        if self.web_module == "requests":
+        if self.thread.web_module == "requests":
             get_url_requests(self)
-        elif self.web_module == "selenium":
+        elif self.thread.web_module == "selenium":
             get_url_selenium(self)
 
     def get_url_requests(self):
