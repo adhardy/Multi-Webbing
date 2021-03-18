@@ -17,8 +17,8 @@ class MultiWebbing():
         self.web_module = web_module
         self.driver = webdriver
         self.num_threads = num_threads
-        if web_module == "requests":
-            self.session = requests.session 
+        if self.web_module == "requests":
+            self.session = requests.session()
         else:
             self.session = None
 
@@ -38,19 +38,19 @@ class MultiWebbing():
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
-        def __init__(self, number, multiWebbing):
+        def __init__(self, number, multiwebbing):
             threading.Thread.__init__(self)
-            self.web_module = multiWebbing.web_module
+            self.web_module = multiwebbing.web_module
             self.number = number
             self._stop_event = threading.Event()
-            self.job_queue = multiWebbing.job_queue
-            self.lock = multiWebbing.lock
-            self.session = multiWebbing.session
+            self.job_queue = multiwebbing.job_queue
+            self.lock = multiwebbing.lock
+            self.session = multiwebbing.session
             self.options = None
             if self.web_module == "selenium":
                 self.options = Options() 
                 self.options.add_argument("--headless")
-                self.driver = self.driver(options=self.options)
+                self.driver = multiwebbing.driver(options=self.options)
 
         def run(self):
             #execute on thread.start()
@@ -96,10 +96,14 @@ class Job:
         """allows access to thread attributes(e.g. session, lock) that may be needed for the job function"""
         self.thread = thread
         # if not set in init, use thread session and lock 
-        if self.session == None:    
-            self.session = self.thread.session
+        if self.thread.web_module == "requests":
+            if self.session == None:    
+                self.session = self.thread.session
+        elif self.thread.web_module == "selenium":
+            self.driver = thread.driver
         if self.lock == None:
             self.lock = self.thread.lock
+
 
     def get_url_requests(self):
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
