@@ -3,24 +3,28 @@ A multi-threaded libary for web scraping in python, built upon the python thread
 
 ## Set Up
 
-1. Import the Module
+1. Install the module from pip
 
-        import multi_webbing as mw
+        pip install multi_webbing
 
-2. Set the Number of threads and create a multi-webbing object.
+2. Import the Module into your python file
+
+        from multi_webbing import multi_webbing as mw
+
+3. Set the Number of threads and create a multi-webbing object.
 
         num_threads = 4
         my_threads = mw.MultiWebbing(num_threads) #intialize threading
         
-3. Start the threads. The threads will now continuously check the work queue for work.
+4. Start the threads. The threads will now continuously check the work queue for work.
 
         my_threads.start
 
-4. To put a job in the queue, call the job_queue.put() method of the multi-webbing threading object.
+5. To put a job in the queue, call the job_queue.put() method of the multi-webbing object.
 
         my_threads.job_queue.put(mw.Job(job_id, job_function, url, [job_data, job_type]))
 
-5. When you are ready, stop the threads
+6. When you are ready, stop the threads
 
         my_threads.finish()
 
@@ -34,33 +38,29 @@ You might find it useful to check the size of the queue in a loop before calling
 
 When creating a job, you need to pass a job function that the thread will call to do some work.
 
-The job function has 4 required arguments and 2 optional ones:
+The job function has 3 required arguments and 2 optional ones:
 
 ### Required Arguments
 
-1. id
-
-Not currently used by the threads or jobs, will be removed in a future update, so can be set to None.
-
-2. url
+1. url
 
 The URL of the webpage to be worked on.
 
-3. job_function
+2. job_function
 
 The function the thread should call when it picks the job out of the queue. See (Job Function)[#Job-Function].
 
-4. custom_data
+3. custom_data
 
 An argument that can be used for anything to be accessed inside the job function.
 
 ### Optional Arguments
 
-1. session
+4. session
 
 A requests.session object. If this is not set, the job will use the session set when the MultiWebbing object was instanced.
 
-2. lock
+5. lock
 
 A threading.lock object. If this is not set, the job will use the lock set when the MultiWebbing object was instanced.
                 
