@@ -20,7 +20,7 @@ test = {}
 print("Testing selenium:")
 try:
     num_threads = 2
-    my_threads = mw.MultiWebbing(num_threads, "selenium")
+    my_threads = mw.MultiWebbing(num_threads, web_module="selenium")
     my_threads.start()
 
 

@@ -11,7 +11,7 @@ A multi-threaded libary for web scraping in python, built upon the python thread
 
         from multi_webbing import multi_webbing as mw
 
-3. Set the Number of threads and create a multi-webbing object. By default this will use the requests module, but this can be changed to selenium by passing the webmodule="selenium" option to MultWebbing.
+3. Set the Number of threads and create a multi-webbing object. By default this will use the requests module, but this can be changed to selenium by passing the web_module="selenium" option to MultWebbing.
 
         num_threads = 4
         my_threads = mw.MultiWebbing(num_threads) #intialize threading
