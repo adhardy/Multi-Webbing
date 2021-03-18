@@ -7,20 +7,23 @@ from selenium.webdriver.chrome.options import Options
 
 class MultiWebbing():
     """call this class first to initiate MultiWebbing and the individual threads"""
-    def __init__(self, num_threads, web_module="requests"):
+    def __init__(self, num_threads, web_module="requests", webdriver=webdriver.Chrome):
+        #TODO add harry's bots as web_module option
         """Creates a job queue, lock object, session and creates the number of requested threads"""
         sys.path
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
         self.web_module = web_module
+        self.driver = webdriver
+        self.num_threads = num_threads
         if web_module = "requests":
             self.session = requests.session 
         else:
             self.session = None
 
-        for i in range(num_threads):
-            self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session, self.web_module))
+        for i in range(self.num_threads):
+            self.threads.append(self.Thread(i, self))
 
     def start(self):
         """Call after initiating a Threading object to start the threads."""
@@ -35,15 +38,18 @@ class MultiWebbing():
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
-        def __init__(self, number, job_queue, lock, session):
+        def __init__(self, number, multiWebbing):
             threading.Thread.__init__(self)
+            self.web_module = multiWebbing.web_module
             self.number = number
             self._stop_event = threading.Event()
-            self.job_queue = job_queue
-            self.lock = lock
-            options = Options() #TODO add harry's bots here
-            options.add_argument("--headless")
-            self.driver = webdriver.Chrome(options=options)
+            self.job_queue = multiWebbing.job_queue
+            self.lock = multiWebbing.lock
+            self.session = multiWebbing.session
+            if web_module = "selenium-chrome"
+                options = Options() 
+                options.add_argument("--headless")
+                self.driver = multiWebbing.driver(options=options)
 
         def run(self):
             #execute on thread.start()
