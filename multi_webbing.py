@@ -96,7 +96,7 @@ class Job:
             self.request = None
             return False
         else:
-            self.request = self.thread.driver.get(self.url)
+            self.request = self.thread.driver.get(self.url) #cleanup
             self.status_code = requests.get(self.url).status_code
 
         return True
