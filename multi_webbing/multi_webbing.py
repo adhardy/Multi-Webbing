@@ -17,7 +17,7 @@ class MultiWebbing():
         self.web_module = web_module
         self.driver = webdriver
         self.num_threads = num_threads
-        if web_module = "requests":
+        if web_module == "requests":
             self.session = requests.session 
         else:
             self.session = None
@@ -47,7 +47,7 @@ class MultiWebbing():
             self.lock = multiWebbing.lock
             self.session = multiWebbing.session
             self.options = None
-            if self.web_module = "selenium"
+            if self.web_module == "selenium":
                 self.options = Options() 
                 self.options.add_argument("--headless")
                 self.driver = multiWebbing.driver(self.options=options)
@@ -101,10 +101,10 @@ class Job:
         if self.lock == None:
             self.lock = self.thread.lock
 
-    def get_url(self)
-        if self.web_module="requests":
+    def get_url(self):
+        if self.web_module == "requests":
             get_url_requests(self)
-        elif: self.web_module="selenium":
+        elif self.web_module == "selenium":
             get_url_selenium(self)
 
     def get_url_requests(self):
