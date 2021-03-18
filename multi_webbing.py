@@ -11,7 +11,7 @@ class MultiWebbing():
         sys.path
         self.job_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
-        self.session = webdriver.Chrome('./chromedriver')
+        self.session = webdriver.Chrome()
         self.threads = []
         for i in range(num_threads):
             self.threads.append(self.Thread(i, self.job_queue, self.lock, self.session))
