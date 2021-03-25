@@ -25,7 +25,7 @@ try:
 
 
     for i in range(4):
-        my_threads.job_queue.put(mw.Job(job_function_selenium, f"https://www.google.com/search?q={i}", "string", ))
+        my_threads.job_queue.put(mw.queue_job(job_function_selenium, f"https://www.google.com/search?q={i}", "string", ))
 
 
     while my_threads.job_queue.qsize() > 0:
@@ -41,26 +41,26 @@ else:
 
 print("Selenium test complete, testing requests:")
 
-try:
-    num_threads = 2
-    my_threads = mw.MultiWebbing(num_threads)
-    my_threads.start()
+# try:
+num_threads = 2
+my_threads = mw.MultiWebbing(num_threads)
+my_threads.start()
 
 
-    for i in range(4):
-        my_threads.job_queue.put(mw.Job(job_function_requests, f"https://www.google.com/search?q={i}", "string", ))
+for i in range(4):
+    my_threads.queue_job(job_function_requests, f"https://www.google.com/search?q={i}", "string", )
 
 
-    while my_threads.job_queue.qsize() > 0:
-        sleep(5)
+while my_threads.job_queue.qsize() > 0:
+    sleep(5)
 
-    my_threads.finish()
+my_threads.finish()
 
-except:
-    test["requests"] = False
+# except:
+#     test["requests"] = False
 
-else:
-    test["requests"] = True
+# else:
+#     test["requests"] = True
 
 print("Tests Complete")
 

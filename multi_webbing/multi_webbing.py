@@ -16,10 +16,11 @@ class MultiWebbing():
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
         self.num_threads = num_threads
+        self.web_module = web_module
 
         if self.web_module == "requests":
             self.session = requests.session()
-        if self.web_module == "selenium"
+        if self.web_module == "selenium":
             self.web_module = web_module
             self.driver = webdriver
 
@@ -36,6 +37,10 @@ class MultiWebbing():
         for thread in self.threads:
             thread.join()
 
+    def queue_job(self, job_function, url, job_data):
+        """wrapper for mw.job_queue.put()"""
+        self.job_queue.put(Job(job_function, url, job_data))
+
     class Thread(threading.Thread):
         #define how the threads function
         #TODO add verbosity for more detailed output options
@@ -47,6 +52,7 @@ class MultiWebbing():
             self.job_queue = multiwebbing.job_queue
             self.results_queue = multiwebbing.results_queue
             self.lock = multiwebbing.lock
+            self.result = None
             if self.web_module == "requests":
                 self.session = multiwebbing.session
             self.options = None
@@ -64,8 +70,8 @@ class MultiWebbing():
                 #thread will continuously check the queue for work until the master process joins the threads, and the stop_event signal is sent
                 try:
                     #get a job
-                    job = self.job_queue.get(block=False)
-                    job.set_thread(self) #give job access to thread attributes
+                    job = self.job_queue.get(block=False) 
+                    self.result = job.set_thread(self) #give job access to thread attributes
 
                 except queue.Empty:
                     pass
