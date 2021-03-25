@@ -15,17 +15,17 @@ class MultiWebbing():
         self.results_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
-        # self.result_thread = self.ResultThread(self)
         self.num_threads = num_threads
         self.web_module = web_module
-        self.queue_added = 0#total number of items added to the queue
 
         if self.web_module == "requests":
             self.session = requests.session()
         if self.web_module == "selenium":
             self.web_module = web_module
             self.driver = webdriver
-
+        
+        #threads
+        self.result_thread = self.ResultThread(self)
         for i in range(self.num_threads):
             self.threads.append(self.Thread(i, self))
 
@@ -33,26 +33,18 @@ class MultiWebbing():
         """Call after initiating a Threading object to start the threads."""
         for thread in self.threads:
             thread.start()
+        self.ResultThread.start
 
     def finish(self):
         """When you are ready to finish your threads (e.g. when your work queue is empty and you have visited all pages, call this method to stop and join the threads."""
         for thread in self.threads:
             thread.join()
+        self.ResultThread.join()
 
     def queue_job(self, job_function, url, job_data):
         """wrapper for mw.job_queue.put()"""
         self.job_queue.put(Job(job_function, url, job_data))
         self.queue_added += 1
-
-    # class ResultThread(threading.Thread):
-
-    #     def __init__(self, multiwebbing):
-            
-
-    #     def run(self):
-    #         #execute on thread.start()
-    #         #job_function should have a Job object as its sole argument. Can update job argument with additional attributes if needed for the function
-    #         print(f" ** Starting thread - {self.number}")
 
     class Thread(threading.Thread):
         #define how the threads function
@@ -65,7 +57,6 @@ class MultiWebbing():
             self.job_queue = multiwebbing.job_queue
             self.results_queue = multiwebbing.results_queue
             self.lock = multiwebbing.lock
-            self.result = None
             if self.web_module == "requests":
                 self.session = multiwebbing.session
             self.options = None
@@ -104,7 +95,30 @@ class MultiWebbing():
             self._stop_event.set()
             super().join(timeout)
             print(f" ** Joined thread - {self.number}")
+    
+    class ResultThread(Thread):
 
+        def __init__(self, multiwebbing):
+            self.results_queue = multiwebbing.results_queue
+            self._stop_event = threading.Event()
+
+        def run(self):
+            #execute on thread.start()
+            #job_function should have a Job object as its sole argument. Can update job argument with additional attributes if needed for the function
+            print(f" ** Starting result thread.")
+
+            while not self._stop_event.isSet():
+            #thread will continuously check the queue for results until the master process joins the threads, and the stop_event signal is sent
+                try:
+                    #get a result
+                    job = self.result_queue.get(block=False) 
+
+                except queue.Empty:
+                    pass
+
+                else:
+                    
+                    
 class Job:
     #holds all the information needed for the worker threads to make a request and execute the job_function
     def __init__(self, function, url, custom_data, session = None, lock = None):
