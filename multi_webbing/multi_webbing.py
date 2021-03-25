@@ -12,15 +12,16 @@ class MultiWebbing():
         """Creates a job queue, lock object, session and creates the number of requested threads"""
         sys.path
         self.job_queue = queue.Queue()
+
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
-        self.web_module = web_module
-        self.driver = webdriver
         self.num_threads = num_threads
+
         if self.web_module == "requests":
             self.session = requests.session()
-        else:
-            self.session = None
+        if self.web_module == "selenium"
+            self.web_module = web_module
+            self.driver = webdriver
 
         for i in range(self.num_threads):
             self.threads.append(self.Thread(i, self))
