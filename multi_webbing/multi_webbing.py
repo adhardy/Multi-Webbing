@@ -15,8 +15,10 @@ class MultiWebbing():
         self.results_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
+        # self.result_thread = self.ResultThread(self)
         self.num_threads = num_threads
         self.web_module = web_module
+        self.queue_added = 0#total number of items added to the queue
 
         if self.web_module == "requests":
             self.session = requests.session()
@@ -40,6 +42,17 @@ class MultiWebbing():
     def queue_job(self, job_function, url, job_data):
         """wrapper for mw.job_queue.put()"""
         self.job_queue.put(Job(job_function, url, job_data))
+        self.queue_added += 1
+
+    # class ResultThread(threading.Thread):
+
+    #     def __init__(self, multiwebbing):
+            
+
+    #     def run(self):
+    #         #execute on thread.start()
+    #         #job_function should have a Job object as its sole argument. Can update job argument with additional attributes if needed for the function
+    #         print(f" ** Starting thread - {self.number}")
 
     class Thread(threading.Thread):
         #define how the threads function
@@ -71,7 +84,7 @@ class MultiWebbing():
                 try:
                     #get a job
                     job = self.job_queue.get(block=False) 
-                    self.result = job.set_thread(self) #give job access to thread attributes
+                    job.set_thread(self) #give job access to thread attributes
 
                 except queue.Empty:
                     pass
@@ -79,9 +92,11 @@ class MultiWebbing():
                 else:
                     #print("Thread " + self.name + ": Getting profile: " + profile.url)
                     #execute main thread function
-                    job.function(job)
-                    #update the data structure with the returned data
-
+                    job.get_url()
+                    job.result = job.function(job)
+                    #put job in result queue
+                    self.results_queue.put(job)
+                    
             print(f" ** Completed thread - {self.number}")
 
         def join(self, timeout=None):
@@ -100,6 +115,7 @@ class Job:
         self.function = function
         self.session = None #can set session and lock per job, or can leave unset and attributes will be taken from thread set during init
         self.lock = None
+        self.result = None
 
     def set_thread(self, thread):
         """allows access to thread attributes(e.g. session, lock) that may be needed for the job function"""
