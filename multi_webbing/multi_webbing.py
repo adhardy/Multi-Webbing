@@ -12,7 +12,7 @@ class MultiWebbing():
         """Creates a job queue, lock object, session and creates the number of requested threads"""
         sys.path
         self.job_queue = queue.Queue()
-
+        self.results_queue = queue.Queue()
         self.lock = threading.Lock() #session and lock can be overwritten on a per job basis
         self.threads = []
         self.num_threads = num_threads
@@ -45,8 +45,10 @@ class MultiWebbing():
             self.number = number
             self._stop_event = threading.Event()
             self.job_queue = multiwebbing.job_queue
+            self.results_queue = multiwebbing.results_queue
             self.lock = multiwebbing.lock
-            self.session = multiwebbing.session
+            if self.web_module == "requests":
+                self.session = multiwebbing.session
             self.options = None
             if self.web_module == "selenium":
                 self.options = Options() 
@@ -104,7 +106,6 @@ class Job:
             self.driver = thread.driver
         if self.lock == None:
             self.lock = self.thread.lock
-
 
     def get_url_requests(self):
         """Make a get request to Job.url. Sets Job.request to the result, returns 1 upon an error"""
